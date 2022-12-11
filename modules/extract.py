@@ -37,7 +37,16 @@ class ExtractUrl(Extract):
         if url:
             cls.url = url
 
-        # RUN
+        if not cls.url:
+            raise ValueError("Url not provided")
+
+        page = requests.get(url)
+        soup = BeautifulSoup(page.content, 'html.parser')
+        html_tables = soup.find_all('table')
+
+        for html_table in html_tables:
+            dict_table = cls.dict_from_html_table(html_table)
+            cls.dict_to_csv(dict_table)
 
     @classmethod
     def dict_from_html_table(cls, table: BeautifulSoup) -> List[dict]:
@@ -75,20 +84,3 @@ class ExtractUrl(Extract):
             to_return[heads[i]] = col.string
         
         return to_return
-
-
-
-def table_dict_from_url(url: str) -> None:
-    if not validators.url(url):
-        raise ValueError("Invalid url")
-
-    page = requests.get(url)
-    soup = BeautifulSoup(page.content, "html.parser")
-    tables_html = soup.find_all('table')
-    if not tables_html:
-        print("No table detected")
-        sys.exit(2)
-    
-    for table_html in tables_html:
-        table = ExtractUrl.dict_from_html_table(table_html)
-        return table
