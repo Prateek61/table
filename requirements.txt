@@ -1,0 +1,4 @@
+pytest
+validators
+requests
+beautifulsoup4
